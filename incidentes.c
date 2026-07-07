@@ -1,7 +1,6 @@
 /*
  * incidentes.c
- * Implementación con Interfaz Gráfica de Consola Mejorada (CLI).
- * Formato de listas verticales (sin tablas).
+ Aquí colocamos toda la funcionalidad del programa y las acciones de todas las funciones.
  */
 
 #include <stdio.h>
