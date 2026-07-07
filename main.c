@@ -34,9 +34,47 @@ int main() {
     int opcionMenuPrincipal = 0;
     int *ptrOpcionMenuPrincipal = &opcionMenuPrincipal;
 
+    etiquetaInicial();// muestra el banner del programa
+    cargarDatos(ptrCabeza, ptrCola); // carga los incidentes guardados previamente (si existen)
 
+    // Bucle principal del programa, se repite hasta que el usuario elija la opción 7 (salir)
+    do {
+        opcionMenuPrincipal = menuPrincipal(ptrOpcionMenuPrincipal);
 
-     while (opcionMenuPrincipal != 7); // se sale del bucle cuando eligen la opción 7
+        switch (opcionMenuPrincipal) {
+            case 1: 
+                registrarIncidente(ptrCabeza, ptrCola); // pide datos y agrega un nuevo incidente
+                guardarDatos(cabeza); // se guarda el cambio en el archivo
+                break;
+            case 2: 
+                buscarIncidente(cabeza); // busca por código y muestra el detalle
+                break;
+            case 3: 
+                modificarEstado(cabeza); // cambia el estado de un incidente
+                guardarDatos(cabeza);  // se guarda el cambio en el archivo
+                break;
+            case 4: 
+                listarAbiertos(cabeza); // lista solo los incidentes abiertos
+                break;
+            case 5: 
+                listarPorPrioridad(cabeza); // lista incidentes filtrados por prioridad
+                break;
+            case 6: 
+                eliminarResuelto(ptrCabeza, ptrCola, cabeza); // elimina un incidente ya resuelto
+                guardarDatos(cabeza);  // se guarda el cambio en el archivo
+                break;
+            case 7: 
+                // opción de salida: se guarda todo, se genera el reporte final y se libera la memoria
+                guardarDatos(cabeza);
+                generarReporte(cabeza);
+                liberarMemoria(ptrCabeza);
+                printf(C_CYAN C_BOLD "\n=========================================================\n" C_RESET);
+                printf(C_GREEN C_BOLD "         DATOS GUARDADOS. SALISTE DEL PROGRAMA         \n" C_RESET);
+                printf(C_CYAN C_BOLD "=========================================================\n\n" C_RESET);
+                break;
+        }
+
+    } while (opcionMenuPrincipal != 7); // se sale del bucle cuando eligen la opción 7
     
-    return 0; 
+    return 0;
 }
