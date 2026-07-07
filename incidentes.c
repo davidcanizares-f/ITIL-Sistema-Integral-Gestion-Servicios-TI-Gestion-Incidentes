@@ -267,3 +267,81 @@ void modificarEstado(struct incidente *cabeza) {
 
     printf(C_GREEN C_BOLD "\n[EXITO] Estado actualizado a '%s'.\n" C_RESET, actual->estado);
 }
+// Recorre toda la lista mostrando únicamente los incidentes con estado "Abierto"
+void listarAbiertos(struct incidente *cabeza) {
+    struct incidente *actual = cabeza;
+    bool hayAbiertos = false;
+
+    printf(C_YELLOW C_BOLD "\n====================== INCIDENTES ABIERTOS ======================\n" C_RESET);
+
+    while (actual != NULL) {
+        if (strcmp(actual->estado, "Abierto") == 0) {
+            printf(C_CYAN "[INCIDENTE #%d]\n" C_RESET, actual->codigo);
+            printf("  " C_BOLD "Prioridad:" C_RESET " %s\n", actual->prioridad);
+            printf("  " C_BOLD "Departamento:" C_RESET " %s\n", actual->departamento);
+            printf("  " C_BOLD "Descripcion:" C_RESET " %s\n", actual->descripcion);
+            printf("-----------------------------------------------------------------\n");
+            hayAbiertos = true;
+        }
+        actual = actual->siguiente;
+    }
+
+    // Si no se encontró ninguno abierto, se avisa al usuario
+    if (!hayAbiertos) {
+        printf(C_GREEN "  ¡Excelente! No hay incidentes abiertos en este momento.\n" C_RESET);
+        printf("=================================================================\n");
+    }
+}
+
+// Filtra los incidentes según la prioridad que elija el usuario y los muestra
+void listarPorPrioridad(struct incidente *cabeza) {
+    struct incidente *actual = cabeza;
+    int opcionPrioridad;
+    char prioridadBuscada[20];
+    bool hayIncidentes = false;
+
+    if (cabeza == NULL) {
+        printf(C_YELLOW "\n[INFO] El sistema no tiene incidentes registrados.\n" C_RESET);
+        return;
+    }
+
+    printf(C_YELLOW C_BOLD "\n=========== FILTRAR POR PRIORIDAD ===========\n" C_RESET);
+    printf("> Seleccione Prioridad " C_CYAN "[1]Baja [2]Media [3]Alta [4]Critica" C_RESET ": ");
+    while ((scanf("%d", &opcionPrioridad) != 1) || opcionPrioridad < 1 || opcionPrioridad > 4) {
+        printf(C_RED "  [ERROR] Opcion invalida.\n" C_RESET);
+        while (getchar() != '\n');
+        printf("> Seleccione: ");
+    }
+    getchar();
+
+    // Se traduce la opción numérica a la cadena de texto de la prioridad
+    if (opcionPrioridad == 1) strcpy(prioridadBuscada, "Baja");
+    else if (opcionPrioridad == 2) strcpy(prioridadBuscada, "Media");
+    else if (opcionPrioridad == 3) strcpy(prioridadBuscada, "Alta");
+    else strcpy(prioridadBuscada, "Critica");
+
+    printf(C_CYAN "\n--- RESULTADOS PARA PRIORIDAD: %s ---\n" C_RESET, prioridadBuscada);
+
+    // Se recorre la lista mostrando solo los que coincidan con la prioridad elegida
+    while (actual != NULL) {
+        if (strcmp(actual->prioridad, prioridadBuscada) == 0) {
+            printf(C_YELLOW "[INCIDENTE #%d]\n" C_RESET, actual->codigo);
+            
+            /* Colorear el estado dependiendo de cuál sea */
+            printf("  " C_BOLD "Estado      :" C_RESET " ");
+            if (strcmp(actual->estado, "Resuelto") == 0) printf(C_GREEN "%s\n" C_RESET, actual->estado);
+            else if (strcmp(actual->estado, "Abierto") == 0) printf(C_RED "%s\n" C_RESET, actual->estado);
+            else printf(C_YELLOW "%s\n" C_RESET, actual->estado);
+
+            printf("  " C_BOLD "Descripcion :" C_RESET " %s\n", actual->descripcion);
+            printf("------------------------------------------------------\n");
+            hayIncidentes = true;
+        }
+        actual = actual->siguiente;
+    }
+
+    if (!hayIncidentes) {
+        printf(C_YELLOW "  No se encontraron incidentes con esta prioridad.\n" C_RESET);
+        printf("------------------------------------------------------\n");
+    }
+}
