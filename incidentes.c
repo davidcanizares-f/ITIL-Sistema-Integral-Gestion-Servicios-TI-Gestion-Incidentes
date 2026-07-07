@@ -160,3 +160,110 @@ void registrarIncidente(struct incidente **ptrCabeza, struct incidente **ptrCola
 
     printf(C_GREEN C_BOLD "\n[EXITO] Incidente #%d registrado correctamente.\n" C_RESET, codigo);
 }
+
+// Busca un incidente por su código y muestra todos sus datos en pantalla
+void buscarIncidente(struct incidente *cabeza) {
+    int codigoBuscado;
+    bool encontrado = false;
+    struct incidente *actual = cabeza;
+
+    if (cabeza == NULL) {
+        printf(C_YELLOW "\n[INFO] El sistema no tiene incidentes registrados.\n" C_RESET);
+        return;
+    }
+
+    printf(C_YELLOW C_BOLD "\n=========== BUSCADOR DE INCIDENTES ==========\n" C_RESET);
+    printf("> Ingrese Codigo a buscar: ");
+    while (scanf("%d", &codigoBuscado) != 1 || codigoBuscado <= 0) {
+        printf(C_RED "  [ERROR] Ingrese un numero valido.\n" C_RESET);
+        while (getchar() != '\n');
+        printf("> Ingrese Codigo a buscar: ");
+    }
+    getchar();
+    
+    // Recorre la lista enlazada buscando el código
+    while (actual != NULL) {
+        if (actual->codigo == codigoBuscado) {
+            encontrado = true;
+            printf(C_CYAN "\n+------------------------------------------------+\n" C_RESET);
+            printf(C_BOLD "  DETALLES DEL INCIDENTE #%d\n" C_RESET, actual->codigo);
+            printf(C_CYAN "+------------------------------------------------+\n" C_RESET);
+            printf("  " C_BOLD "Fecha:" C_RESET " %s\n", actual->fecha);
+            printf("  " C_BOLD "Usuario:" C_RESET " %s\n", actual->usuario);
+            printf("  " C_BOLD "Departamento:" C_RESET " %s\n", actual->departamento);
+            printf("  " C_BOLD "Descripcion:" C_RESET " %s\n", actual->descripcion);
+            printf("  " C_BOLD "Prioridad:" C_RESET " %s\n", actual->prioridad);
+            
+            /* Colorear el estado dependiendo de cuál sea */
+            printf("  " C_BOLD "Estado:" C_RESET " ");
+            if (strcmp(actual->estado, "Resuelto") == 0) printf(C_GREEN "%s\n" C_RESET, actual->estado);
+            else if (strcmp(actual->estado, "Abierto") == 0) printf(C_RED "%s\n" C_RESET, actual->estado);
+            else printf(C_YELLOW "%s\n" C_RESET, actual->estado);
+            
+            printf(C_CYAN "+------------------------------------------------+\n" C_RESET);
+            break; // ya se encontró, no hace falta seguir recorriendo
+        }
+        actual = actual->siguiente;
+    }
+
+    if (!encontrado) {
+        printf(C_RED "\n[ERROR] No se encontro ningun incidente con el codigo %d.\n" C_RESET, codigoBuscado);
+    }
+}
+
+// Busca un incidente por código y permite cambiar su estado
+void modificarEstado(struct incidente *cabeza) {
+    int codigoBuscado, opcionEstado;
+    bool encontrado = false;
+    struct incidente *actual = cabeza;
+
+    if (cabeza == NULL) {
+        printf(C_YELLOW "\n[INFO] El sistema no tiene incidentes registrados.\n" C_RESET);
+        return;
+    }
+
+    printf(C_YELLOW C_BOLD "\n============= ACTUALIZAR ESTADO =============\n" C_RESET);
+    printf("> Codigo del incidente: ");
+    while (scanf("%d", &codigoBuscado) != 1 || codigoBuscado <= 0) {
+        printf(C_RED "  [ERROR] Ingrese un numero valido.\n" C_RESET);
+        while (getchar() != '\n');
+        printf("> Codigo del incidente: ");
+    }
+    getchar();
+
+    // Se busca el incidente con ese código
+    while (actual != NULL) {
+        if (actual->codigo == codigoBuscado) {
+            encontrado = true;
+            break;
+        }
+        actual = actual->siguiente;
+    }
+
+    if (!encontrado) {
+        printf(C_RED "\n[ERROR] Incidente no encontrado.\n" C_RESET);
+        return;
+    }
+
+    printf("\n" C_BOLD "Estado Actual:" C_RESET " %s\n", actual->estado);
+    printf("Nuevo Estado " C_CYAN "[1]Abierto [2]En Proceso [3]Resuelto [4]Cancelar" C_RESET ": ");
+
+    while (scanf("%d", &opcionEstado) != 1 || opcionEstado < 1 || opcionEstado > 4) {
+        printf(C_RED "  [ERROR] Opcion invalida.\n" C_RESET);
+        while (getchar() != '\n');
+        printf("Escoja: ");
+    }
+    getchar();
+
+    // Según la opción elegida se actualiza el estado, o se cancela la operación
+    switch (opcionEstado) {
+        case 1: strcpy(actual->estado, "Abierto"); break;
+        case 2: strcpy(actual->estado, "En Proceso"); break;
+        case 3: strcpy(actual->estado, "Resuelto"); break;
+        case 4: 
+            printf(C_YELLOW "\n[INFO] Operacion cancelada.\n" C_RESET);
+            return; 
+    }
+
+    printf(C_GREEN C_BOLD "\n[EXITO] Estado actualizado a '%s'.\n" C_RESET, actual->estado);
+}
