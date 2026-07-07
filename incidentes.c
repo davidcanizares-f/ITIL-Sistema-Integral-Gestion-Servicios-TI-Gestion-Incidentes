@@ -356,8 +356,11 @@ void eliminarResuelto(struct incidente **ptrCabeza, struct incidente **ptrCola, 
         printf(C_YELLOW "\n[INFO] El sistema no tiene incidentes registrados.\n" C_RESET);
         return;
     }
-
-    
+    // Primero se revisa si hay incidentes resueltos antes de pedir el código a eliminar
+    int hayResueltos = listarResueltos(cabeza);
+    if(hayResueltos == 0){
+        return;
+    }
     printf(C_RED C_BOLD "\n============= ELIMINAR INCIDENTE RESUELTO ============\n" C_RESET);
     printf("> Ingrese Codigo a eliminar: ");
     while (scanf("%d", &codigoBuscado) != 1 || codigoBuscado <= 0) {
