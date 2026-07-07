@@ -345,3 +345,194 @@ void listarPorPrioridad(struct incidente *cabeza) {
         printf("------------------------------------------------------\n");
     }
 }
+
+// Elimina un incidente de la lista, pero solo si su estado es "Resuelto"
+void eliminarResuelto(struct incidente **ptrCabeza, struct incidente **ptrCola, struct incidente *cabeza) {
+    int codigoBuscado;
+    bool encontrado = false;
+    struct incidente *actual = *ptrCabeza;
+
+    if (*ptrCabeza == NULL) {
+        printf(C_YELLOW "\n[INFO] El sistema no tiene incidentes registrados.\n" C_RESET);
+        return;
+    }
+
+    
+    printf(C_RED C_BOLD "\n============= ELIMINAR INCIDENTE RESUELTO ============\n" C_RESET);
+    printf("> Ingrese Codigo a eliminar: ");
+    while (scanf("%d", &codigoBuscado) != 1 || codigoBuscado <= 0) {
+        printf(C_RED "  [ERROR] Ingrese un numero valido.\n" C_RESET);
+        while (getchar() != '\n');
+        printf("> Ingrese Codigo a eliminar: ");
+    }
+    getchar();
+
+    // Se busca el nodo con el código indicado
+    while (actual != NULL) {
+        if (actual->codigo == codigoBuscado) {
+            encontrado = true;
+            break;
+        }
+        actual = actual->siguiente;
+    }
+
+    if (!encontrado) {
+        printf(C_RED "\n[ERROR] Incidente #%d no encontrado.\n" C_RESET, codigoBuscado);
+        return;
+    }
+
+    // Solo se permite borrar si el incidente ya está resuelto
+    if (strcmp(actual->estado, "Resuelto") != 0) {
+        printf(C_YELLOW "\n[ADVERTENCIA] Solo se pueden eliminar incidentes en estado 'Resuelto'.\n" C_RESET);
+        printf("El incidente #%d esta actualmente: %s\n", actual->codigo, actual->estado);
+        return;
+    }
+
+    /* Desenlazar el nodo */
+    // Se reconectan los punteros anterior/siguiente para sacar el nodo de la lista
+    if (actual->anterior != NULL) actual->anterior->siguiente = actual->siguiente;
+    else *ptrCabeza = actual->siguiente; // si era la cabeza, se actualiza la cabeza
+
+    if (actual->siguiente != NULL) actual->siguiente->anterior = actual->anterior;
+    else *ptrCola = actual->anterior; // si era la cola, se actualiza la cola
+
+    free(actual); // se libera la memoria del nodo eliminado
+    printf(C_GREEN C_BOLD "\n[EXITO] Incidente #%d eliminado permanentemente.\n" C_RESET, codigoBuscado);
+}
+
+// Lee el archivo de texto con los incidentes guardados y reconstruye la lista enlazada
+void cargarDatos(struct incidente **ptrCabeza, struct incidente **ptrCola) {
+    FILE *archivo = fopen("datos_incidentes.txt", "r");
+    if (archivo == NULL) {
+        printf(C_YELLOW "\n[INFO] Iniciando base de datos limpia (archivo no encontrado).\n" C_RESET);
+        return;
+    }
+
+    char linea[500];
+    // Se lee línea por línea, cada línea es un incidente separado por "|"
+    while (fgets(linea, sizeof(linea), archivo)) {
+        struct incidente *nuevo = (struct incidente *)malloc(sizeof(struct incidente));
+        if (nuevo == NULL) break;
+        
+        linea[strcspn(linea, "\n")] = '\0';
+        
+        // Se van tomando los campos con strtok usando "|" como separador
+        char *token = strtok(linea, "|");
+        if(token) nuevo->codigo = atoi(token);
+        
+        token = strtok(NULL, "|");
+        if(token) strcpy(nuevo->fecha, token);
+        
+        token = strtok(NULL, "|");
+        if(token) strcpy(nuevo->usuario, token);
+        
+        token = strtok(NULL, "|");
+        if(token) strcpy(nuevo->departamento, token);
+        
+        token = strtok(NULL, "|");
+        if(token) strcpy(nuevo->descripcion, token);
+        
+        token = strtok(NULL, "|");
+        if(token) strcpy(nuevo->prioridad, token);
+        
+        token = strtok(NULL, "|");
+        if(token) strcpy(nuevo->estado, token);
+        
+        // Se enlaza el nuevo nodo al final de la lista
+        nuevo->siguiente = NULL;
+        nuevo->anterior = *ptrCola;
+
+        if (*ptrCabeza == NULL) *ptrCabeza = nuevo;
+        else (*ptrCola)->siguiente = nuevo;
+        
+        *ptrCola = nuevo;
+    }
+    fclose(archivo);
+    printf(C_GREEN "\n[INFO] Datos locales cargados exitosamente.\n" C_RESET);
+}
+
+// Recorre la lista completa y guarda cada incidente como una línea en el archivo de texto
+void guardarDatos(struct incidente *cabeza) {
+    FILE *archivo = fopen("datos_incidentes.txt", "w");
+    if (archivo == NULL) {
+        printf(C_RED "\n[ERROR] No se pudo guardar el archivo de base de datos.\n" C_RESET);
+        return;
+    }
+
+    struct incidente *actual = cabeza;
+    while (actual != NULL) {
+        // Se guarda cada campo separado por "|" para poder leerlo después con strtok
+        fprintf(archivo, "%d|%s|%s|%s|%s|%s|%s\n", 
+                actual->codigo, actual->fecha, actual->usuario, 
+                actual->departamento, actual->descripcion, 
+                actual->prioridad, actual->estado);
+        actual = actual->siguiente;
+    }
+    fclose(archivo);
+}
+
+// Genera un archivo de texto con el reporte final de todos los incidentes registrados
+void generarReporte(struct incidente *cabeza) {
+    FILE *reporte = fopen("reporte_incidentes.txt", "w");
+    if (reporte == NULL) return;
+
+    fprintf(reporte, "================ REPORTE DE INCIDENTES ================\n\n");
+    struct incidente *actual = cabeza;
+    int contador = 0;
+
+    // Se recorre la lista escribiendo los datos de cada incidente en el archivo
+    while (actual != NULL) {
+        fprintf(reporte, "[%d] %s\n", actual->codigo, actual->descripcion);
+        fprintf(reporte, "    Fecha: %s | Usuario: %s\n", actual->fecha, actual->usuario);
+        fprintf(reporte, "    Dpto: %s | Prioridad: %s | Estado: %s\n", actual->departamento, actual->prioridad, actual->estado);
+        fprintf(reporte, "--------------------------------------------------------\n");
+        actual = actual->siguiente;
+        contador++;
+    }
+    fprintf(reporte, "\nTotal de incidentes registrados: %d\n", contador);
+    fprintf(reporte, "========================================================\n");
+    fclose(reporte);
+}
+
+// Recorre la lista liberando cada nodo, se usa al salir del programa para no dejar memoria sin liberar
+void liberarMemoria(struct incidente **ptrCabeza) {
+    struct incidente *actual = *ptrCabeza;
+    struct incidente *siguiente;
+    
+    while (actual != NULL) {
+        siguiente = actual->siguiente; // se guarda el siguiente antes de liberar el actual
+        free(actual);
+        actual = siguiente;
+    }
+    *ptrCabeza = NULL;
+}
+
+
+// Muestra los incidentes que están en estado "Resuelto" y devuelve 1 si encontró alguno, 0 si no
+int listarResueltos(struct incidente *cabeza) {
+    struct incidente *actual = cabeza;
+    bool hayResueltos = false;
+
+    printf(C_YELLOW C_BOLD "\n====================== INCIDENTES RESUELTOS ======================\n" C_RESET);
+
+    while (actual != NULL) {
+        if (strcmp(actual->estado, "Resuelto") == 0) {
+            printf(C_CYAN "[INCIDENTE #%d]\n" C_RESET, actual->codigo);
+            printf("  " C_BOLD "Prioridad:" C_RESET " %s\n", actual->prioridad);
+            printf("  " C_BOLD "Departamento:" C_RESET " %s\n", actual->departamento);
+            printf("  " C_BOLD "Descripcion:" C_RESET " %s\n", actual->descripcion);
+            printf("-----------------------------------------------------------------\n");
+            hayResueltos = true;
+        }
+        actual = actual->siguiente;
+    }
+
+    // El valor de retorno se usa en eliminarResuelto() para saber si vale la pena seguir
+    if (!hayResueltos) {
+        printf(C_GREEN "  No hay incidentes resueltos en este momento.\n" C_RESET);
+        printf("=================================================================\n");
+        return 0;
+    } else{
+        return 1;
+    }
+}

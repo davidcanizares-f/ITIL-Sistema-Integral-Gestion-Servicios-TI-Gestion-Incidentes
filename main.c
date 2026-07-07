@@ -36,7 +36,7 @@ int main() {
 
 
 
-    } while (opcionMenuPrincipal != 7); // se sale del bucle cuando eligen la opción 7
+     while (opcionMenuPrincipal != 7); // se sale del bucle cuando eligen la opción 7
     
-    return 0;
+    return 0; 
 }
