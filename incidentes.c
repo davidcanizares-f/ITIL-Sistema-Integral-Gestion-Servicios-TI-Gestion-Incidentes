@@ -328,12 +328,12 @@ void listarPorPrioridad(struct incidente *cabeza) {
             printf(C_YELLOW "[INCIDENTE #%d]\n" C_RESET, actual->codigo);
             
             /* Colorear el estado dependiendo de cuál sea */
-            printf("  " C_BOLD "Estado      :" C_RESET " ");
+            printf("  " C_BOLD "Estado:" C_RESET " ");
             if (strcmp(actual->estado, "Resuelto") == 0) printf(C_GREEN "%s\n" C_RESET, actual->estado);
             else if (strcmp(actual->estado, "Abierto") == 0) printf(C_RED "%s\n" C_RESET, actual->estado);
             else printf(C_YELLOW "%s\n" C_RESET, actual->estado);
 
-            printf("  " C_BOLD "Descripcion :" C_RESET " %s\n", actual->descripcion);
+            printf("  " C_BOLD "Descripcion:" C_RESET " %s\n", actual->descripcion);
             printf("------------------------------------------------------\n");
             hayIncidentes = true;
         }
