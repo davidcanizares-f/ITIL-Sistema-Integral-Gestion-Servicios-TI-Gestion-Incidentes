@@ -40,3 +40,20 @@ struct incidente {
     struct incidente *anterior;  // apunta al nodo anterior de la lista
 };
 
+/* ─── Prototipos de funciones ─── */
+void etiquetaInicial();    // imprime el banner inicial del programa
+int menuPrincipal(int *ptrOpcion);   // muestra el menú y devuelve la opción elegida
+void cargarDatos(struct incidente **ptrCabeza, struct incidente **ptrCola); // lee los incidentes desde el archivo de texto
+void guardarDatos(struct incidente *cabeza);   // guarda la lista de incidentes en el archivo de texto
+void generarReporte(struct incidente *cabeza);    // genera el reporte final en un .txt
+void registrarIncidente(struct incidente **ptrCabeza, struct incidente **ptrCola); // agrega un nuevo incidente a la lista
+void buscarIncidente(struct incidente *cabeza);   // busca un incidente por su código
+void modificarEstado(struct incidente *cabeza);  // cambia el estado de un incidente existente
+void listarAbiertos(struct incidente *cabeza);    // muestra todos los incidentes en estado "Abierto"
+void listarPorPrioridad(struct incidente *cabeza); // filtra y muestra incidentes según su prioridad
+void eliminarResuelto(struct incidente **ptrCabeza, struct incidente **ptrCola, struct incidente *cabeza); // borra un incidente que ya esté resuelto
+void liberarMemoria(struct incidente **ptrCabeza); // libera toda la memoria de la lista antes de salir
+int listarResueltos(struct incidente *cabeza);     // muestra los incidentes resueltos, devuelve si hay o no
+
+#endif /* INCIDENTES_H */
+
