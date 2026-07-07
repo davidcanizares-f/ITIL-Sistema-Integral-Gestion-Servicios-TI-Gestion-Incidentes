@@ -1,0 +1,6 @@
+101|15/11/2023|Ana Lopez|Recursos Humanos|El portal de empleados no carga la pagina de inicio|Media|Abierto
+102|16/11/2023|Carlos Ruiz|TI|Caida total del servidor principal de base de datos|Critica|En Proceso
+103|17/11/2023|Maria Gomez|Ventas|Atasco de papel en la impresora del segundo piso|Baja|Resuelto
+104|18/11/2023|Jose Martinez|Contabilidad|Error de calculo en el modulo de nominas|Alta|Abierto
+105|19/11/2023|Elena Rojas|Logistica|El lector de codigo de barras de bodega se desconecta|Media|En Proceso
+106|20/11/2023|David Perez|Gerencia|Laptop del gerente muestra pantalla azul al arrancar|Critica|Abierto
